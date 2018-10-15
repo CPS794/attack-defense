@@ -228,9 +228,10 @@ void getRa(Attack a, int index, int remain)
 
 int main()
 {
-	freopen("s.in","r",stdin);
-	freopen("s.out","w",stdout);
-	ios::sync_with_stdio(false);
+	#ifdef Smile
+		freopen("s.in","r",stdin);
+		freopen("s.out","w",stdout);
+	#endif
 	cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
 	while (cin>>tcase)
 	{
