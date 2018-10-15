@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::chrono;
 
 const int MAXN=13;
-const int MAXM=1e6+7;
+const int MAXM=10;
 const int MOD=1000000007;
 const int INF=2139062143;
 const double EPS=1e-7;
@@ -58,6 +58,11 @@ struct Attack
 {
 	double va,vd;
 	int ra[MAXN];
+	Attack()
+	{
+		va=0;
+		vd=0;
+	}
 	bool operator <(const Attack &p) const {
 		return cmp(va,p.va)>0;
 	}
@@ -187,6 +192,18 @@ void getRa(Attack a, int index, int remain)
 	{
 		a.ra[12] = remain;
 		a.calculate(cd,ca,g,l,lambda,chi,delta);
+		for (int i = 0; i < MAXM; ++i)
+		{
+			if (a < attack[i])
+			{
+				for (int j = MAXM-1; j > i ; --j)
+				{
+					attack[j] = attack[j-1];
+				}
+				attack[i] = a;
+				break;
+			}
+		}
 		// cout<<"A: "<<a<<endl;
 		if (a < res)
 		{
@@ -237,7 +254,11 @@ int main()
 			res.va = 0;
 			// attack[cnt++]=t;
 			getRa(t,1,ra_total);
-			cout<<setprecision(10)<<"Result: "<<res<<endl;
+			for (int i = 0; i < MAXM; ++i)
+			{
+				cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
+			}
+			// cout<<setprecision(10)<<"Result: "<<res<<endl;
 			cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
 		}
 	}
