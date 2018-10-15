@@ -5,7 +5,6 @@
 */
 #include <bits/stdc++.h>
 using namespace std;
-using namespace std::chrono;
 
 const int MAXN=13;
 const int MAXM=10;
@@ -228,40 +227,43 @@ void getRa(Attack a, int index, int remain)
 
 int main()
 {
+	tcase = 1;
 	#ifdef Smile
 		freopen("s.in","r",stdin);
 		freopen("s.out","w",stdout);
+		cin>>tcase;
 	#endif
+
 	cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
-	while (cin>>tcase)
+	xcase=0;
+	while (xcase++ < tcase)
 	{
-		xcase=0;
-		while (xcase++ < tcase)
+		memset(rd,0,sizeof(rd));
+		cnt=0;
+		cin>>rd_total>>ra_total>>cd>>ca;
+		cin>>g>>l>>lambda>>chi>>delta;
+		for (int i = 1; i < MAXN; ++i)
 		{
-			memset(rd,0,sizeof(rd));
-			cnt=0;
-			cin>>rd_total>>ra_total>>cd>>ca;
-			cin>>g>>l>>lambda>>chi>>delta;
-			for (int i = 1; i < MAXN; ++i)
-			{
-				cin>>rd[i];
-			}
-			for (int i = 1; i < MAXN; ++i)
-			{
-				t.ra[i] = 1;
-			}
-			t.calculate(cd,ca,g,l,lambda,chi,delta);
-			res = t;
-			res.va = 0;
-			// attack[cnt++]=t;
-			getRa(t,1,ra_total);
-			for (int i = 0; i < MAXM; ++i)
-			{
-				cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
-			}
-			// cout<<setprecision(10)<<"Result: "<<res<<endl;
-			cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
+			cin>>rd[i];
 		}
+		for (int i = 1; i < MAXN; ++i)
+		{
+			t.ra[i] = 1;
+		}
+		t.calculate(cd,ca,g,l,lambda,chi,delta);
+		res = t;
+		res.va = 0;
+		// attack[cnt++]=t;
+		getRa(t,1,ra_total);
+		for (int i = 0; i < MAXM; ++i)
+		{
+			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
+		}
+		// cout<<setprecision(10)<<"Result: "<<res<<endl;
+		cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
 	}
+	#ifndef Smile
+		system("pause");
+	#endif
 	return 0;
 }
