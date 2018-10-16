@@ -6,8 +6,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+const int MAXT=1007;
 const int MAXN=13;
-const int MAXM=10;
+const int MAXM=1;
 const int MAXK=3;
 const int MOD=1000000007;
 const int INF=2139062143;
@@ -33,15 +34,15 @@ const int u[2][14] = {
 };
 
 const string currentDateTime() {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-    // for more information about date/time format
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+	time_t     now = time(0);
+	struct tm  tstruct;
+	char       buf[80];
+	tstruct = *localtime(&now);
+	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+	// for more information about date/time format
+	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
-    return buf;
+	return buf;
 }
 
 bool zero(double x) { // 实数判0
@@ -67,14 +68,24 @@ double w(double p, double t) { // w+: t=chi w-:t=delta
 
 int rd[MAXN];
 
+struct Gen {
+	mt19937 g;
+	Gen() : g(static_cast<uint32_t>(rand())){}
+	size_t operator()(size_t n)
+	{
+		std::uniform_int_distribution<size_t> d(0, n ? n-1 : 0);
+		return d(g);
+	}
+};
+
 struct Attack
 {
 	double va,vd;
-	int ra[MAXN];
+	int ra[MAXN],rd[MAXN];
 	Attack()
 	{
-		va=0;
-		vd=0;
+		va=-INF;
+		vd=INF;
 	}
 	bool operator <(const Attack &p) const {
 		return cmp(va,p.va)>0;
@@ -85,6 +96,7 @@ struct Attack
 		for (int i = 0; i < MAXN; ++i)
 		{
 			ra[i]=p.ra[i];
+			rd[i]=p.rd[i];
 		}
 		return *this;
 	}
@@ -94,8 +106,70 @@ struct Attack
 		{
 			os<<p.ra[i]<<",";
 		}
+		os<<"\trd: ";
+		for (int i = 1; i < MAXN; ++i)
+		{
+			os<<p.rd[i]<<",";
+		}
 		os<<endl;
 		return os;
+	}
+	void random(int ra_total, int rd_total, int k) // k 恒为 12
+	{
+		va=-INF;
+		vd=INF;
+		int a[MAXT],b[MAXT];
+		int l,r,n;
+		memset(a,0,sizeof(a));
+		memset(b,0,sizeof(b));
+		for (int i = 1; i < ra_total+1; ++i)
+		{
+			a[i] = 1;
+		}
+		for (int i = ra_total; i < ra_total+k; ++i)
+		{
+			a[i] = 0;
+		}
+		random_shuffle(a+1,a+ra_total+k,Gen());
+		l = 0,r = 1,n = 0;
+		while(r < ra_total+k)
+		{
+			if (a[r]==0)
+			{
+				b[n++]=r-l-1;
+				l=r;
+			}
+			r++;
+		}
+		for (int i = 0; i < n; ++i)
+		{
+			ra[i+1] = b[i];
+		}
+		memset(a,0,sizeof(a));
+		memset(b,0,sizeof(b));
+		for (int i = 1; i < rd_total+1; ++i)
+		{
+			a[i] = 1;
+		}
+		for (int i = rd_total; i < rd_total+k; ++i)
+		{
+			a[i] = 0;
+		}
+		random_shuffle(a+1,a+rd_total+k,Gen());
+		l = 0,r = 1,n = 0;
+		while(r < rd_total+k)
+		{
+			if (a[r]==0)
+			{
+				b[n++]=r-l-1;
+				l=r;
+			}
+			r++;
+		}
+		for (int i = 0; i < n; ++i)
+		{
+			rd[i+1] = b[i];
+		}
 	}
 	void calculate(int cd, int ca, double g, double l, double lambda, double chi, double delta) {
 		double pAB[MAXN]; // 1-6 for A, 7-12 for B
@@ -108,8 +182,14 @@ struct Attack
 		double cd2ca2 = 1.0 * cd * cd / ca / ca;
 		for (int i = 1; i < MAXN; ++i)
 		{
-			pAB[i] = 1.0 * rd[i] * rd[i] / (1.0 * rd[i] * rd[i] + cd2ca2 * ra[i] * ra[i]);
-			// pAB[i] = 1.0 * 1 * 1 / (1.0 * 1 * 1 + cd2ca2 * rd[i] * rd[i]);
+			if (ra[i] == 0 && rd[i] == 0)
+			{
+				pAB[i] = 0;
+			}
+			else
+			{
+				pAB[i] = 1.0 * rd[i] * rd[i] / (1.0 * rd[i] * rd[i] + cd2ca2 * ra[i] * ra[i]);
+			}
 		}
 		pAB[0]=1;
 		p[0]=0;
@@ -180,7 +260,6 @@ struct Attack
 		// 	// cout<<sigma_p[i]<<",";
 		// 	cout<<pi[0][i]<<",";
 		// }
-		// // cout<<sigma_p[13]<<",";
 		// cout<<endl;
 		// for (int i = 1; i < 14; ++i)
 		// {
@@ -235,21 +314,21 @@ void getRa(Attack a, int index, int remain)
 	}
 	else
 	{
-		if (index == 2)
-		{
-			cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
-			cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
-			for (int i = 0; i < MAXK; ++i)
-			{
-				cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
-			}
-		}
-		if (index == 3)
-		{
-			cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
-			cout<<"\t\tCurrent Best Result: "<<endl;
-			cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
-		}
+		// if (index == 2)
+		// {
+		// 	cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
+		// 	cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
+		// 	for (int i = 0; i < MAXK; ++i)
+		// 	{
+		// 		cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
+		// 	}
+		// }
+		// if (index == 3)
+		// {
+		// 	cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
+		// 	cout<<"\t\tCurrent Best Result: "<<endl;
+		// 	cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
+		// }
 		for (int i = 0; i <= remain; ++i)
 		{
 			a.ra[index] = i;
@@ -261,6 +340,8 @@ void getRa(Attack a, int index, int remain)
 int main()
 {
 	tcase = 1;
+	srand(time(0));
+
 	#ifdef Smile
 		freopen("s.in","r",stdin);
 		freopen("s.out","w",stdout);
@@ -281,25 +362,50 @@ int main()
 		cnt=0;
 		cin>>rd_total>>ra_total>>cd>>ca;
 		cin>>g>>l>>lambda>>chi>>delta;
+
 		for (int i = 1; i < MAXN; ++i)
 		{
-			cin>>rd[i];
+			cin>>t.ra[i];
 		}
 		for (int i = 1; i < MAXN; ++i)
 		{
-			t.ra[i] = 1;
+			cin>>t.rd[i];
 		}
 		t.calculate(cd,ca,g,l,lambda,chi,delta);
-		res = t;
-		res.va = 0;
-		// attack[cnt++]=t;
-		getRa(t,1,ra_total);
-		for (int i = 0; i < MAXM; ++i)
-		{
-			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
-		}
-		// cout<<setprecision(10)<<"Result: "<<res<<endl;
-		cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
+		cout<<setprecision(10)<<t<<endl;
+		
+		// for (int i = 0; i < 100; ++i)
+		// {
+		// 	// t.random(rand()%(MAXT-24)+1,rand()%(MAXT-24)+1,12);
+		// 	t.random(12,12,12);
+		// 	// cout<<t;
+		// 	t.calculate(cd,ca,g,l,lambda,chi,delta);
+		// 	cout<<setprecision(10)<<t;
+		// }
+		
+		// for (int i = 1; i < MAXN; ++i)
+		// {
+		// 	cin>>rd[i];
+		// }
+		// for (int i = 1; i < MAXN; ++i)
+		// {
+		// 	t.ra[i] = 1;
+		// 	t.rd[i] = 1;
+		// }
+		// // t.random(12,12,12);
+		// t.calculate(cd,ca,g,l,lambda,chi,delta);
+		// // cout<<t<<endl;
+		// res = t;
+		// res.va = 0;
+		// // attack[cnt++]=t;
+		// // getRa(t,1,ra_total);
+		// // for (int i = 0; i < MAXM; ++i)
+		// // {
+		// // 	cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
+		// // }
+		// // cout<<setprecision(10)<<"Result: "<<res<<endl;
+		// cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
+		
 	}
 	#ifndef Smile
 		system("pause");
