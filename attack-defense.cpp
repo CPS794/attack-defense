@@ -8,6 +8,7 @@ using namespace std;
 
 const int MAXN=13;
 const int MAXM=10;
+const int MAXK=3;
 const int MOD=1000000007;
 const int INF=2139062143;
 const double EPS=1e-7;
@@ -75,7 +76,7 @@ struct Attack
 		return *this;
 	}
 	friend ostream& operator <<(ostream &os, const Attack &p) {
-		os<<"Va: "<<p.va<<", Vd: "<<p.vd<<endl;
+		os<<"Va: "<<p.va<<", Vd: "<<p.vd<<".\tra: ";
 		for (int i = 1; i < MAXN; ++i)
 		{
 			os<<p.ra[i]<<",";
@@ -221,6 +222,21 @@ void getRa(Attack a, int index, int remain)
 	}
 	else
 	{
+		if (index == 2)
+		{
+			cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
+			cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
+			for (int i = 0; i < MAXK; ++i)
+			{
+				cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
+			}
+		}
+		if (index == 3)
+		{
+			cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
+			cout<<"\t\tCurrent Best Result: "<<endl;
+			cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
+		}
 		for (int i = 0; i <= remain; ++i)
 		{
 			a.ra[index] = i;
