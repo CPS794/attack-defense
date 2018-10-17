@@ -122,17 +122,13 @@ struct Attack
 		int l,r,n;
 		memset(a,0,sizeof(a));
 		memset(b,0,sizeof(b));
-		for (int i = 1; i < ra_total+1; ++i)
+		for (int i = 1; i <= ra_total; ++i)
 		{
 			a[i] = 1;
 		}
-		for (int i = ra_total; i < ra_total+k; ++i)
-		{
-			a[i] = 0;
-		}
 		random_shuffle(a+1,a+ra_total+k,Gen());
 		l = 0,r = 1,n = 0;
-		while(r < ra_total+k)
+		while(r <= ra_total+k+1)
 		{
 			if (a[r]==0)
 			{
@@ -141,23 +137,19 @@ struct Attack
 			}
 			r++;
 		}
-		for (int i = 0; i < n; ++i)
+		for (int i = 0; i < k; ++i)
 		{
 			ra[i+1] = b[i];
 		}
 		memset(a,0,sizeof(a));
 		memset(b,0,sizeof(b));
-		for (int i = 1; i < rd_total+1; ++i)
+		for (int i = 1; i <= rd_total; ++i)
 		{
 			a[i] = 1;
 		}
-		for (int i = rd_total; i < rd_total+k; ++i)
-		{
-			a[i] = 0;
-		}
 		random_shuffle(a+1,a+rd_total+k,Gen());
 		l = 0,r = 1,n = 0;
-		while(r < rd_total+k)
+		while(r <= rd_total+k+1)
 		{
 			if (a[r]==0)
 			{
@@ -166,10 +158,29 @@ struct Attack
 			}
 			r++;
 		}
-		for (int i = 0; i < n; ++i)
+		for (int i = 0; i < k; ++i)
 		{
 			rd[i+1] = b[i];
 		}
+		int total = 0;
+		for (int i = 1; i <= k; ++i)
+		{
+			total += ra[i];
+		}
+		if (total != ra_total)
+		{
+			cout << "Error:" << *this <<endl;
+		}
+		total = 0;
+		for (int i = 1; i <= k; ++i)
+		{
+			total += rd[i];
+		}
+		if (total != rd_total)
+		{
+			cout << "Error:" << *this <<endl;
+		}
+
 	}
 	void calculate(int cd, int ca, double g, double l, double lambda, double chi, double delta) {
 		double pAB[MAXN]; // 1-6 for A, 7-12 for B
@@ -184,7 +195,7 @@ struct Attack
 		{
 			if (ra[i] == 0 && rd[i] == 0)
 			{
-				pAB[i] = 0;
+				pAB[i] = 1;
 			}
 			else
 			{

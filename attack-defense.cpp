@@ -108,8 +108,14 @@ struct Attack
 		double cd2ca2 = 1.0 * cd * cd / ca / ca;
 		for (int i = 1; i < MAXN; ++i)
 		{
-			pAB[i] = 1.0 * rd[i] * rd[i] / (1.0 * rd[i] * rd[i] + cd2ca2 * ra[i] * ra[i]);
-			// pAB[i] = 1.0 * 1 * 1 / (1.0 * 1 * 1 + cd2ca2 * rd[i] * rd[i]);
+			if (ra[i] == 0 && rd[i] == 0)
+			{
+				pAB[i] = 1;
+			}
+			else
+			{
+				pAB[i] = 1.0 * rd[i] * rd[i] / (1.0 * rd[i] * rd[i] + cd2ca2 * ra[i] * ra[i]);
+			}
 		}
 		pAB[0]=1;
 		p[0]=0;
