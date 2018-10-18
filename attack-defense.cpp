@@ -235,21 +235,21 @@ void getRa(Attack a, int index, int remain)
 	}
 	else
 	{
-		if (index == 2)
-		{
-			cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
-			cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
-			for (int i = 0; i < MAXK; ++i)
-			{
-				cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
-			}
-		}
-		if (index == 3)
-		{
-			cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
-			cout<<"\t\tCurrent Best Result: "<<endl;
-			cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
-		}
+		// if (index == 2)
+		// {
+		// 	cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
+		// 	cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
+		// 	for (int i = 0; i < MAXK; ++i)
+		// 	{
+		// 		cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
+		// 	}
+		// }
+		// if (index == 3)
+		// {
+		// 	cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
+		// 	cout<<"\t\tCurrent Best Result: "<<endl;
+		// 	cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
+		// }
 		for (int i = 0; i <= remain; ++i)
 		{
 			a.ra[index] = i;
@@ -263,7 +263,7 @@ int main()
 	tcase = 1;
 	#ifdef Smile
 		freopen("s.in","r",stdin);
-		freopen("s.out","w",stdout);
+		freopen("s.out","a",stdout);
 		cin>>tcase;
 	#endif
 
@@ -294,11 +294,20 @@ int main()
 		res.va = 0;
 		// attack[cnt++]=t;
 		getRa(t,1,ra_total);
-		cout<<"ra_total = "<<ra_total<<", rd_total = "<<rd_total<<endl;
+		cout << "Case #" << xcase << ": "<<endl;
+		cout<<"ra_total = "<<ra_total<<",\trd_total = "<<rd_total<<",\tcd = "<<cd<<",\tca = "<<ca<<endl;
+		cout<<setprecision(5)<<"g = "<<g<<",\tl = "<<l<<",\tlambda = "<<lambda<<",\tchi = "<<chi<<",\tdelta = "<<delta<<endl;
+		cout<<"rd: ";
+		for (int i = 1; i < MAXN; ++i)
+		{
+			cout<<rd[i]<<",";
+		}
+		cout<<endl;
 		for (int i = 0; i < MAXM; ++i)
 		{
-			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
+			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i];
 		}
+		cout<<endl;
 		// cout<<setprecision(10)<<"Result: "<<res<<endl;
 		cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
 	}
