@@ -54,14 +54,8 @@ double cmp(double a,double b) { // 比较实数a和b的大小,返回a-b
 
 double w(double p, double t) { // w+: t=chi w-:t=delta
 	double one_p = 1.0-p;
-	if (zero(p))
-	{
-		return 0.0;
-	}
-	if (zero(one_p))
-	{
-		return pow(p,t)/pow(pow(p,t),1.0/t);
-	}
+	if (p<0.0) p=0.0;
+	if (one_p<0.0) one_p=0.0;
 	return pow(p,t)/pow(pow(p,t)+pow(one_p,t),1.0/t);
 }
 
@@ -300,6 +294,7 @@ int main()
 		res.va = 0;
 		// attack[cnt++]=t;
 		getRa(t,1,ra_total);
+		cout<<"ra_total = "<<ra_total<<", rd_total = "<<rd_total<<endl;
 		for (int i = 0; i < MAXM; ++i)
 		{
 			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i]<<endl;
