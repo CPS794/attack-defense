@@ -287,11 +287,12 @@ int main()
 		}
 		for (int i = 1; i < MAXN; ++i)
 		{
-			t.ra[i] = 1;
+			t.ra[i] = 0;
+			// t.ra[i] = 1;
 		}
-		t.calculate(cd,ca,g,l,lambda,chi,delta);
-		res = t;
-		res.va = 0;
+		// t.calculate(cd,ca,g,l,lambda,chi,delta);
+		res = Attack();
+		// res.va = 0;
 		// attack[cnt++]=t;
 		getRa(t,1,ra_total);
 		cout << "Case #" << xcase << ": "<<endl;
