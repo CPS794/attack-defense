@@ -67,18 +67,16 @@ double w(double p, double t) { // w+: t=chi w-:t=delta
 	return pow(p,t)/pow(pow(p,t)+pow(one_p,t),1.0/t);
 }
 
+int rd[MAXN];
 int calculate_count;
 
 struct Attack
 {
 	double va,vd;
-	int ra[MAXN],rd[MAXN];
+	int ra[MAXN];
 	Attack(){}
 	bool operator <(const Attack &p) const {
 		return cmp(va,p.va)>0;
-	}
-	bool operator >(const Attack &p) const {
-		return cmp(vd,p.vd)>0;
 	}
 	const Attack& operator =(const Attack& p) {
 		va=p.va;
@@ -86,7 +84,6 @@ struct Attack
 		for (int i = 0; i < MAXN; ++i)
 		{
 			ra[i]=p.ra[i];
-			rd[i]=p.rd[i];
 		}
 		return *this;
 	}
@@ -95,11 +92,6 @@ struct Attack
 		for (int i = 1; i < MAXN; ++i)
 		{
 			os<<p.ra[i]<<",";
-		}
-		os<<"\trd: ";
-		for (int i = 1; i < MAXN; ++i)
-		{
-			os<<p.rd[i]<<",";
 		}
 		os<<endl;
 		return os;
@@ -210,7 +202,7 @@ int i,j,k,n,m,x,y,cnt,tcase,xcase;
 int ra_total,rd_total,ca,cd;
 double g,l,lambda,chi,delta;
 int ra[MAXN];
-Attack t,res_a,res_d;
+Attack t,res;
 Attack attack[MAXM];
 string s;
 
@@ -220,23 +212,18 @@ void splitRa(Attack a, int index)
 	if (index == 7)
 	{
 		a.calculate(cd,ca,g,l,lambda,chi,delta);
-		if (a < res_a)
+		for (int i = 0; i < MAXM; ++i)
 		{
-			// cout<<"Res: "<<res_a<<"A: "<<a<<endl<<endl;
-			res_a = a;
+			if (a < attack[i])
+			{
+				for (int j = MAXM-1; j > i ; --j)
+				{
+					attack[j] = attack[j-1];
+				}
+				attack[i] = a;
+				break;
+			}
 		}
-		// for (int i = 0; i < MAXM; ++i)
-		// {
-		// 	if (a < attack[i])
-		// 	{
-		// 		for (int j = MAXM-1; j > i ; --j)
-		// 		{
-		// 			attack[j] = attack[j-1];
-		// 		}
-		// 		attack[i] = a;
-		// 		break;
-		// 	}
-		// }
 	}
 	if (index > 6)
 	{
@@ -248,7 +235,7 @@ void splitRa(Attack a, int index)
 		return;
 	}
 	int rAB = a.ra[index];
-	if (a.rd[index]==0)
+	if (rd[index]==0)
 	{
 		for (int i = 0; i <= min(1,rAB); ++i)
 		{
@@ -257,7 +244,7 @@ void splitRa(Attack a, int index)
 			splitRa(a,index+1);
 		}
 	} 
-	else if (a.rd[index+6]==0)
+	else if (rd[index+6]==0)
 	{
 		for (int i = 0; i <= min(1,rAB); ++i)
 		{
@@ -266,7 +253,7 @@ void splitRa(Attack a, int index)
 			splitRa(a,index+1);
 		}
 	}
-	else if (a.rd[index] == a.rd[index+6])
+	else if (rd[index] == rd[index+6])
 	{
 		for (int i = 0; i <= min(rAB,rAB/2); ++i)
 		{
@@ -291,17 +278,17 @@ void getRa(Attack a, int index, int remain)
 	// cout<<"getRa("<<index<<","<<remain<<"): "<<a;
 	if (index == 6)
 	{
-		if (a.rd[index] == 0 && a.rd[index+6]==0 && remain > 2) // 肯定不是最优的
+		if (rd[index] == 0 && rd[index+6]==0 && remain > 2) // 肯定不是最优的
 		{
 			return;
 		}
 		a.ra[6] = remain;
 		// cout<<a<<endl;
 		splitRa(a,1);
-		// if (a < res_a)
+		// if (a < res)
 		// {
-		// 	// cout<<"Res: "<<res_a<<"A: "<<a<<endl<<endl;
-		// 	res_a = a;
+		// 	// cout<<"Res: "<<res<<"A: "<<a<<endl<<endl;
+		// 	res = a;
 		// }
 		// cnt++;
 		// if (cnt>5)
@@ -312,7 +299,7 @@ void getRa(Attack a, int index, int remain)
 	else
 	{
 		int min_remain = remain;
-		if (a.rd[index] == 0 && a.rd[index+6]==0)
+		if (rd[index] == 0 && rd[index+6]==0)
 		{
 			min_remain = 2;
 		}
@@ -320,70 +307,6 @@ void getRa(Attack a, int index, int remain)
 		{
 			a.ra[index] = i;
 			getRa(a, index+1, remain-i);
-		}
-	}
-}
-
-
-void splitRd(Attack a, int index)
-{
-	if (index == 7)
-	{
-		// cout<<"\tsplitRd("<<index<<"): "<<a;
-		memset(a.ra,0,sizeof(a.ra));
-		res_a.va = -INF;
-		res_a.vd = INF;
-		getRa(a,1,ra_total);
-		for (int i = 0; i < MAXM; ++i)
-		{
-			if (res_a > attack[i])
-			{
-				for (int j = MAXM-1; j > i ; --j)
-				{
-					attack[j] = attack[j-1];
-				}
-				attack[i] = res_a;
-				break;
-			}
-		}
-		// if (res_a > res_d)
-		// {
-		// 	cout<<"Res_d: "<<res_d<<"A: "<<res_a<<endl<<endl;
-		// 	res_d = res_a;
-		// }
-	}
-	if (index > 6)
-	{
-		return;
-	}
-	if (a.rd[index]==0)
-	{
-		splitRd(a,index+1);
-		return;
-	}
-	int rAB=a.rd[index];
-	for (int i = 0; i <= min(rAB,rAB/2); ++i)
-	{
-		a.rd[index] = i;
-		a.rd[index+6] = rAB-i;
-		splitRd(a,index+1);
-	}
-}
-
-void getRd(Attack a, int index, int remain)
-{
-	if (index == 6)
-	{
-		a.rd[6] = remain;
-		// cout<<"getRd("<<index<<","<<remain<<"): "<<a;
-		splitRd(a,1);
-	}
-	else
-	{
-		for (int i = 0; i <= remain; ++i)
-		{
-			a.rd[index] = i;
-			getRd(a, index+1, remain-i);
 		}
 	}
 }
@@ -402,51 +325,40 @@ int main()
 	xcase=0;
 	while (xcase++ < tcase)
 	{
+		memset(rd,0,sizeof(rd));
 		memset(attack,0,sizeof(attack));
 		for (int i = 0; i < MAXM; ++i)
 		{
-			attack[i].va=INF;
-			attack[i].vd=-INF;
+			attack[i].va=-INF;
+			attack[i].vd=INF;
 		}
 		cnt=0;
 		calculate_count=0;
 		cin>>rd_total>>ra_total>>cd>>ca;
 		cin>>g>>l>>lambda>>chi>>delta;
-		
-		res_a = Attack();
-		res_d = Attack();
-		t=Attack();
-		res_d.va = INF;
-		res_d.vd = -INF;
-		for (int i = 0; i < MAXM; ++i)
+		for (int i = 1; i < MAXN; ++i)
 		{
-			attack[i].va = INF;
-			attack[i].vd = -INF;
+			cin>>rd[i];
 		}
-
-		memset(t.rd,0,sizeof(t.rd));
-		t.va = -INF;
-		t.vd = INF;
-
-		// t.rd[1]=2;
-		// t.rd[2]=2;
-		// t.rd[3]=0;
-		// t.rd[4]=0;
-		// t.rd[5]=0;
-		// t.rd[6]=0;
-		// t.rd[7]=4;
-		// t.rd[8]=4;
-		// t.rd[9]=0;
-		// t.rd[10]=0;
-		// t.rd[11]=0;
-		// t.rd[12]=0;
-		// getRa(t,1,rd_total);
-
-		getRd(t,1,rd_total);
-
+		for (int i = 1; i < MAXN; ++i)
+		{
+			t.ra[i] = 0;
+			// t.ra[i] = 1;
+		}
+		// t.calculate(cd,ca,g,l,lambda,chi,delta);
+		res = Attack();
+		// res.va = 0;
+		// attack[cnt++]=t;
+		getRa(t,1,ra_total);
 		cout << "Case #" << xcase << ": "<<endl;
 		cout<<"ra_total = "<<ra_total<<",\trd_total = "<<rd_total<<",\tcd = "<<cd<<",\tca = "<<ca<<endl;
 		cout<<setprecision(5)<<"g = "<<g<<",\tl = "<<l<<",\tlambda = "<<lambda<<",\tchi = "<<chi<<",\tdelta = "<<delta<<endl;
+		cout<<"rd: ";
+		for (int i = 1; i < MAXN; ++i)
+		{
+			cout<<rd[i]<<",";
+		}
+		cout<<endl;
 		for (int i = 0; i < MAXM; ++i)
 		{
 			cout<<setprecision(10)<<"Result "<<i+1<<": "<<attack[i];
