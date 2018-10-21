@@ -11,7 +11,7 @@ const int MAXM=10;
 const int MAXK=3;
 const int MOD=1000000007;
 const int INF=2139062143;
-const double EPS=1e-7;
+const double EPS=1e-12;
 const int destroyed[13][13] = {
 	{0,0,0,0,0,0,0,0,0,0,0,0,0},
 	{0,1,2,3,4,5,6,7,8,9,10,11,12},
@@ -52,14 +52,23 @@ double cmp(double a,double b) { // 比较实数a和b的大小,返回a-b
 	return abs(a-b)<EPS ? 0 : a-b;
 }
 
+map<pair<double,double>,double> map_w;
 double w(double p, double t) { // w+: t=chi w-:t=delta
 	double one_p = 1.0-p;
-	if (p<0.0) p=0.0;
-	if (one_p<0.0) one_p=0.0;
+	if (p<0.0)
+	{
+		p=0.0;
+	}
+	if (one_p<0.0)
+	{
+		p=1.0;
+		one_p=0.0;
+	}
 	return pow(p,t)/pow(pow(p,t)+pow(one_p,t),1.0/t);
 }
 
 int rd[MAXN];
+int calculate_count;
 
 struct Attack
 {
@@ -161,11 +170,12 @@ struct Attack
 			}
 			// cout<<"i: "<<i<<", Va: "<<va<<endl;
 		}
+		calculate_count++;
 		// cout<<endl;
 		// cout<<"pAB: ";
 		// for (int i = 1; i < MAXN; ++i)
 		// {
-		// 	// cout<<ra[i]<<",";
+		//	// cout<<ra[i]<<",";
 		// 	cout<<pAB[i]<<",";
 		// }
 		// cout<<endl;
@@ -188,6 +198,7 @@ struct Attack
 		// }
 		// cout<<endl;
 		// cout<<"Va: "<<va<<", Vd: "<<vd<<endl;
+		// cout << "\t\t" << *this << endl;
 	}
 };
 
@@ -199,11 +210,11 @@ Attack t,res;
 Attack attack[MAXM];
 string s;
 
-void getRa(Attack a, int index, int remain)
+void splitRa(Attack a, int index)
 {
-	if (index == 12)
+	// cout<<"\tsplitRa("<<index<<"): "<<a;
+	if (index == 7)
 	{
-		a.ra[12] = remain;
 		a.calculate(cd,ca,g,l,lambda,chi,delta);
 		for (int i = 0; i < MAXM; ++i)
 		{
@@ -217,40 +228,86 @@ void getRa(Attack a, int index, int remain)
 				break;
 			}
 		}
-		// if (cnt<20)
-		// {
-		// 	cout<<"A: "<<a<<endl;
-		// }
-		// cout<<"A: "<<a<<endl;
+	}
+	if (index > 6)
+	{
+		return;
+	}
+	if (a.ra[index]==0)
+	{
+		splitRa(a,index+1);
+		return;
+	}
+	int rAB = a.ra[index];
+	if (rd[index]==0)
+	{
+		for (int i = 0; i <= min(1,rAB); ++i)
+		{
+			a.ra[index] = i;
+			a.ra[index+6] = rAB-i;
+			splitRa(a,index+1);
+		}
+	} 
+	else if (rd[index+6]==0)
+	{
+		for (int i = 0; i <= min(1,rAB); ++i)
+		{
+			a.ra[index] = rAB-i;
+			a.ra[index+6] = i;
+			splitRa(a,index+1);
+		}
+	}
+	else if (rd[index] == rd[index+6])
+	{
+		for (int i = 0; i <= min(rAB,(rAB+1)/2); ++i)
+		{
+			a.ra[index] = i;
+			a.ra[index+6] = rAB-i;
+			splitRa(a,index+1);
+		}
+	}
+	else
+	{
+		for (int i = 0; i <= rAB; ++i)
+		{
+			a.ra[index] = i;
+			a.ra[index+6] = rAB-i;
+			splitRa(a,index+1);
+		}
+	}
+}
+
+void getRa(Attack a, int index, int remain)
+{
+	// cout<<"getRa("<<index<<","<<remain<<"): "<<a;
+	if (index == 6)
+	{
+		if (rd[index] == 0 && rd[index+6]==0 && remain > 2) // 肯定不是最优的
+		{
+			return;
+		}
+		a.ra[6] = remain;
+		// cout<<a<<endl;
+		splitRa(a,1);
 		if (a < res)
 		{
 			// cout<<"Res: "<<res<<"A: "<<a<<endl<<endl;
 			res = a;
 		}
 		// cnt++;
-		// if (cnt>20)
+		// if (cnt>5)
 		// {
 		// 	exit(0);
 		// }
 	}
 	else
 	{
-		// if (index == 2)
-		// {
-		// 	cout<<fixed<<setprecision(4)<<"Over All:["<<(ra_total-remain)*100.0/ra_total<<"%]-----------"<< currentDateTime() <<" -----------"<<endl;
-		// 	cout<<"\tCurrent Top "<<MAXK<<" Results: "<<endl;
-		// 	for (int i = 0; i < MAXK; ++i)
-		// 	{
-		// 		cout<<setprecision(10)<<"\tResult "<<i+1<<": "<<attack[i];
-		// 	}
-		// }
-		// if (index == 3)
-		// {
-		// 	cout<<fixed<<setprecision(4)<<"\tSub:["<<(ra_total-remain)*100.0/ra_total<<"%]----- "<< currentDateTime() <<" -----"<<endl;
-		// 	cout<<"\t\tCurrent Best Result: "<<endl;
-		// 	cout<<setprecision(10)<<"\t\t"<<attack[0]<<endl;
-		// }
-		for (int i = 0; i <= remain; ++i)
+		int min_remain = remain;
+		if (rd[index] == 0 && rd[index+6]==0)
+		{
+			min_remain = 2;
+		}
+		for (int i = 0; i <= min_remain; ++i)
 		{
 			a.ra[index] = i;
 			getRa(a, index+1, remain-i);
@@ -263,7 +320,8 @@ int main()
 	tcase = 1;
 	#ifdef Smile
 		freopen("s.in","r",stdin);
-		freopen("s.out","a",stdout);
+		freopen("s.out","w",stdout);
+		// freopen("s.out","a",stdout);
 		cin>>tcase;
 	#endif
 
@@ -279,6 +337,7 @@ int main()
 			attack[i].vd=INF;
 		}
 		cnt=0;
+		calculate_count=0;
 		cin>>rd_total>>ra_total>>cd>>ca;
 		cin>>g>>l>>lambda>>chi>>delta;
 		for (int i = 1; i < MAXN; ++i)
@@ -287,11 +346,12 @@ int main()
 		}
 		for (int i = 1; i < MAXN; ++i)
 		{
-			t.ra[i] = 1;
+			t.ra[i] = 0;
+			// t.ra[i] = 1;
 		}
-		t.calculate(cd,ca,g,l,lambda,chi,delta);
-		res = t;
-		res.va = 0;
+		// t.calculate(cd,ca,g,l,lambda,chi,delta);
+		res = Attack();
+		// res.va = 0;
 		// attack[cnt++]=t;
 		getRa(t,1,ra_total);
 		cout << "Case #" << xcase << ": "<<endl;
@@ -309,7 +369,7 @@ int main()
 		}
 		cout<<endl;
 		// cout<<setprecision(10)<<"Result: "<<res<<endl;
-		cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
+		cout<<"========================= "<< currentDateTime() <<"("<<calculate_count<<")"<<" =========================="<<endl;
 	}
 	#ifndef Smile
 		system("pause");
