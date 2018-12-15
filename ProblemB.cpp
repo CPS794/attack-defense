@@ -1,5 +1,5 @@
 /*input
--5
+-20
 5
 3 2 2 1 1
 3 5 3 1 0.3 0.4 0.3
@@ -111,7 +111,7 @@ struct Item
         // {
         //     cout<<(*this)<<endl;
         // }
-        if (h>=0) return 0;
+        // if (h>=0) return 0;
         reliability = 0;
         for (int i = 0; i < g.size(); ++i)
         {
@@ -405,7 +405,8 @@ double calculat_r(vector<Item> u, int* weight, int h)
 int main()
 {
     tcase = 1;
-    // freopen("s.in","r",stdin);
+    freopen("s.in","r",stdin);
+    freopen("s.out","w",stdout);
     // #ifdef Smile
     //     freopen("s.in","r",stdin);
     //     freopen("s.out","w",stdout);
