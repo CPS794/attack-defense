@@ -71,6 +71,105 @@ bool cmp(double a,double b) {
     return abs(a-b)<EPS ? 0 : 1;
 }
 
+struct Factory
+{
+    int id;
+    vector<int> g,d;
+    vector<double> q,s;
+    Factory()
+    {
+        id=INF;
+        g.clear();
+        d.clear();
+        q.clear();
+        s.clear();
+    }
+    Factory(int id):id(id)
+    {
+        id=INF;
+        g.clear();
+        d.clear();
+        q.clear();
+        s.clear();
+    }
+    const Factory& operator =(const Factory& p) {
+        id = p.id;
+        g.clear();
+        d.clear();
+        q.clear();
+        s.clear();
+        for (int i = 0; i < p.g.size(); ++i) g.push_back(p.g[i]);
+        for (int i = 0; i < p.d.size(); ++i) d.push_back(p.d[i]);
+        for (int i = 0; i < p.q.size(); ++i) q.push_back(p.q[i]);
+        for (int i = 0; i < p.s.size(); ++i) s.push_back(p.s[i]);
+        return *this;
+    }
+    bool operator <(const Factory &p) const {
+        return id < p.id;
+    }
+    friend istream& operator >>(istream &is, Factory &p) {
+        p.id = INF;
+        p.g.clear();
+        p.d.clear();
+        p.q.clear();
+        p.s.clear();
+        int number_of_g_of_factory,number_of_d_of_factory,x;
+        double y;
+        is>>number_of_g_of_factory;
+        for (int i = 0; i < number_of_g_of_factory; ++i)
+        {
+            is>>x;
+            p.g.push_back(x);
+        }
+        for (int i = 0; i < number_of_g_of_factory; ++i)
+        {
+            is>>y;
+            p.q.push_back(y);
+        }
+        is>>number_of_d_of_factory;
+        for (int i = 0; i < number_of_d_of_factory; ++i)
+        {
+            is>>x;
+            p.d.push_back(x);
+        }
+        for (int i = 0; i < number_of_d_of_factory; ++i)
+        {
+            is>>y;
+            p.s.push_back(y);
+        }
+        return is;
+    }
+    friend ostream& operator <<(ostream &os, const Factory &p) 
+    {
+        os<<p.id<<endl;
+        os<<"g: ";
+        for (int i = 0; i < p.g.size(); ++i)
+        {
+            os<<p.g[i]<<",";
+        }
+        os<<endl;
+        os<<"q: ";
+        for (int i = 0; i < p.q.size(); ++i)
+        {
+            os<<p.q[i]<<",";
+        }
+        os<<endl;
+        os<<"d: ";
+        for (int i = 0; i < p.d.size(); ++i)
+        {
+            os<<p.d[i]<<",";
+        }
+        os<<endl;
+        os<<"s: ";
+        for (int i = 0; i < p.s.size(); ++i)
+        {
+            os<<p.s[i]<<",";
+        }
+        os<<endl;
+        return os;
+    }
+};
+
 struct Item
 {
     long double x;
@@ -232,6 +331,7 @@ double beta[MAXM];
 vector<int> g[MAXN],d[MAXN];
 vector<double> q[MAXN],s[MAXN];
 vector<Item> u[MAXN],w[MAXN],delta[MAXN],ugf[MAXN];
+Factory f[MAXN];
 
 const string currentDateTime() {
     time_t     now = time(0);
@@ -253,32 +353,9 @@ void inputs()
     }
     for (int i = 0; i < number_of_factory; ++i)
     {
-        cin>>size_g_q[i];
-        for (int j = 0; j < size_g_q[i]; ++j)
-        {
-            cin>>ta;
-            g[i].push_back(ta);
-        }
-        for (int j = 0; j < size_g_q[i]; ++j)
-        {
-            cin>>td;
-            q[i].push_back(td);
-            u[i].push_back(Item(td));
-            u[i][j].g.push_back(g[i][j]);
-        }
-        cin>>size_d_s[i];
-        for (int j = 0; j < size_d_s[i]; ++j)
-        {
-            cin>>ta;
-            d[i].push_back(ta);
-        }
-        for (int j = 0; j < size_d_s[i]; ++j)
-        {
-            cin>>td;
-            s[i].push_back(td);
-            w[i].push_back(Item(td));
-            w[i][j].d.push_back(d[i][j]);
-        }
+        cin>>f[i];
+        f[i].id = i;
+        // cout<<f[i];
     }
     cin>>size_conveyor;
     for (int i = 0; i < size_conveyor; ++i)
@@ -288,6 +365,27 @@ void inputs()
     for (int i = 0; i < size_conveyor; ++i)
     {
         cin>>beta[i];
+    }
+}
+
+void prepare_data()
+{
+    for (int i = 0; i < number_of_factory; ++i)
+    {
+        for (int j = 0; j < f[i].g.size(); ++j)
+        {
+            g[i].push_back(f[i].g[j]);
+            q[i].push_back(f[i].q[j]);
+            u[i].push_back(Item(f[i].q[j]));
+            u[i][j].g.push_back(f[i].g[j]);
+        }
+        for (int j = 0; j < f[i].d.size(); ++j)
+        {
+            d[i].push_back(f[i].d[j]);
+            s[i].push_back(f[i].s[j]);
+            w[i].push_back(Item(f[i].s[j]));
+            w[i][j].d.push_back(f[i].d[j]);
+        }
     }
 }
 
@@ -304,7 +402,7 @@ void get_inputs()
     cout << "g & q: "<<endl;
     for (int i = 0; i < number_of_factory; ++i)
     {
-        for (int j = 0; j < size_g_q[i]; ++j)
+        for (int j = 0; j < f[i].g.size(); ++j)
         {
             cout<<g[i][j]<<"("<<q[i][j]<<"),";
         }
@@ -313,7 +411,7 @@ void get_inputs()
     cout<< "u: "<<endl;
     for (int i = 0; i < number_of_factory; ++i)
     {
-        for (int j = 0; j < size_g_q[i]; ++j)
+        for (int j = 0; j < f[i].g.size(); ++j)
         {
             cout<<u[i][j]<<", ";
         }
@@ -322,7 +420,7 @@ void get_inputs()
     cout << "d & s: "<<endl;
     for (int i = 0; i < number_of_factory; ++i)
     {
-        for (int j = 0; j < size_d_s[i]; ++j)
+        for (int j = 0; j < f[i].d.size(); ++j)
         {
             cout<<d[i][j]<<"("<<s[i][j]<<"),";
         }
@@ -331,7 +429,7 @@ void get_inputs()
     cout<< "w: "<<endl;
     for (int i = 0; i < number_of_factory; ++i)
     {
-        for (int j = 0; j < size_d_s[i]; ++j)
+        for (int j = 0; j < f[i].d.size(); ++j)
         {
             cout<<w[i][j]<<", ";
         }
@@ -409,8 +507,8 @@ double calculat_r(vector<Item> u, int* weight, int h)
 int main()
 {
     tcase = 1;
-    freopen("s.in","r",stdin);
-    freopen("s.out","w",stdout);
+    // freopen("s.in","r",stdin);
+    // freopen("s.out","w",stdout);
     // #ifdef Smile
     //     freopen("s.in","r",stdin);
     //     freopen("s.out","w",stdout);
@@ -422,7 +520,8 @@ int main()
     while (xcase++ < tcase)
     {
         inputs();
-        get_inputs();
+        prepare_data();
+        // get_inputs();
         cout<<endl;
         cout<<"#\tH\tR\tSR\tMR"<<endl;
 
