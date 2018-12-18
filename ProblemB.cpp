@@ -323,6 +323,7 @@ struct Item
 int i,j,k,n,m,x,y,l,r,tcase,xcase;
 int ta,min_h;
 double td;
+double result_r,result_sr,result_mr;
 int number_of_factory,size_conveyor;
 int size_g_q[MAXN],size_d_s[MAXN];
 vector<Item> ua,ugf_r,ugf_sr,ugf_mr;
@@ -370,6 +371,17 @@ void inputs()
 
 void prepare_data()
 {
+    for (int i = 0; i < MAXN; ++i)
+    {
+        g[i].clear();
+        q[i].clear();
+        d[i].clear();
+        s[i].clear();
+        u[i].clear();
+        w[i].clear();
+        delta[i].clear();
+        ugf[i].clear();
+    }
     for (int i = 0; i < number_of_factory; ++i)
     {
         for (int j = 0; j < f[i].g.size(); ++j)
@@ -507,8 +519,8 @@ double calculat_r(vector<Item> u, int* weight, int h)
 int main()
 {
     tcase = 1;
-    // freopen("s.in","r",stdin);
-    // freopen("s.out","w",stdout);
+    freopen("s.in","r",stdin);
+    freopen("s.out","w",stdout);
     // #ifdef Smile
     //     freopen("s.in","r",stdin);
     //     freopen("s.out","w",stdout);
@@ -537,21 +549,21 @@ int main()
         ugf_r=calculate_multiply(ugf[number_of_factory],c,beta,size_conveyor);
         for (int h = min_h; h <= 0; ++h)
         {
-            double result_r = calculat_r(ugf_r,weight,h);
+            result_r = calculat_r(ugf_r,weight,h);
             // cout<<"R: "<<result_r<<endl;
             ugf_sr=ugf_r;
             for (int i = 0; i < ugf_sr.size(); ++i)
             {
                 ugf_sr[i].transfer_for_sr(weight,h);
             }
-            double result_sr = calculat_r(ugf_sr,weight,h);
+            result_sr = calculat_r(ugf_sr,weight,h);
             // cout<<"SR: "<<result_sr<<endl;
             ugf_mr=ugf_sr;
             for (int i = 0; i < ugf_mr.size(); ++i)
             {
                 ugf_mr[i].transfer_for_mr(weight,h);
             }
-            double result_mr = calculat_r(ugf_mr,weight,h);
+            result_mr = calculat_r(ugf_mr,weight,h);
             // cout<<"MR: "<<result_mr<<endl;
             // get_inputs();
             // cout << "Case #" << xcase++ << ": " << endl;
@@ -561,6 +573,46 @@ int main()
             // cout<<"MR: "<<setprecision(12)<<result_mr<<endl;
             cout<<setprecision(12)<<xcase++<<"\t"<<h<<"\t"<<result_r<<"\t"<<result_sr<<"\t"<<result_mr<<endl;
         }
+
+        cout<<"#\tW\tR\tSR\tMR"<<endl;
+        xcase=0;
+        
+        do
+        {
+            prepare_data();
+            // get_inputs();
+            for (int i = 0; i < number_of_factory; ++i)
+            {
+                delta[i] = calculate_multiply(u[i],w[i]);
+            }
+            ugf[0].push_back(Item(1));
+            for (int i = 1; i <= number_of_factory; ++i)
+            {
+                ugf[i] = calculate_multiply(ugf[i-1],delta[i-1]);
+            }
+            ugf_r=calculate_multiply(ugf[number_of_factory],c,beta,size_conveyor);
+            int h=-5;
+            result_r = calculat_r(ugf_r,weight,h);
+            ugf_sr=ugf_r;
+            for (int i = 0; i < ugf_sr.size(); ++i)
+            {
+                ugf_sr[i].transfer_for_sr(weight,h);
+            }
+            result_sr = calculat_r(ugf_sr,weight,h);
+            ugf_mr=ugf_sr;
+            for (int i = 0; i < ugf_mr.size(); ++i)
+            {
+                ugf_mr[i].transfer_for_mr(weight,h);
+            }
+            result_mr = calculat_r(ugf_mr,weight,h);
+            cout<<setprecision(12)<<xcase++<<"\t";
+            for (int i = 0; i < number_of_factory; ++i)
+            {
+                cout<<f[i].id+1;
+            }
+            cout<<"\t"<<result_r<<"\t"<<result_sr<<"\t"<<result_mr<<endl;
+        }
+        while (next_permutation(f,f+number_of_factory));
     }
 
     cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
