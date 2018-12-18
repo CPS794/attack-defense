@@ -533,7 +533,7 @@ int main()
     {
         inputs();
         prepare_data();
-        // get_inputs();
+        get_inputs();
         cout<<endl;
         cout<<"#\tH\tR\tSR\tMR"<<endl;
 
