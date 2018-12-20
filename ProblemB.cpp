@@ -71,6 +71,53 @@ bool cmp(double a,double b) {
     return abs(a-b)<EPS ? 0 : 1;
 }
 
+struct FactoryPartGQ
+{
+    int id;
+    vector<int> g;
+    vector<double> q;
+    FactoryPartGQ()
+    {
+        id=INF;
+        g.clear();
+        q.clear();
+    }
+    FactoryPartGQ(int id):id(id)
+    {
+        id=INF;
+        g.clear();
+        q.clear();
+    }
+    const FactoryPartGQ& operator =(const FactoryPartGQ& p) {
+        id = p.id;
+        g.clear();
+        q.clear();
+        for (int i = 0; i < p.g.size(); ++i) g.push_back(p.g[i]);
+        for (int i = 0; i < p.q.size(); ++i) q.push_back(p.q[i]);
+        return *this;
+    }
+    bool operator <(const FactoryPartGQ &p) const {
+        return id < p.id;
+    }
+    friend ostream& operator <<(ostream &os, const FactoryPartGQ &p) 
+    {
+        os<<p.id<<endl;
+        os<<"g: ";
+        for (int i = 0; i < p.g.size(); ++i)
+        {
+            os<<p.g[i]<<",";
+        }
+        os<<endl;
+        os<<"q: ";
+        for (int i = 0; i < p.q.size(); ++i)
+        {
+            os<<p.q[i]<<",";
+        }
+        os<<endl;
+        return os;
+    }
+};
+
 struct Factory
 {
     int id;
@@ -106,6 +153,15 @@ struct Factory
     }
     bool operator <(const Factory &p) const {
         return id < p.id;
+    }
+    const Factory& over_write(const FactoryPartGQ& p) {
+        id = p.id;
+        g.clear();
+        q.clear();
+        for (int i = 0; i < p.g.size(); ++i) g.push_back(p.g[i]);
+        for (int i = 0; i < p.q.size(); ++i) q.push_back(p.q[i]);
+        return *this;
+        return *this;
     }
     friend istream& operator >>(istream &is, Factory &p) {
         p.id = INF;
@@ -333,6 +389,7 @@ vector<int> g[MAXN],d[MAXN];
 vector<double> q[MAXN],s[MAXN];
 vector<Item> u[MAXN],w[MAXN],delta[MAXN],ugf[MAXN];
 Factory f[MAXN];
+FactoryPartGQ fpq[MAXN];
 
 const string currentDateTime() {
     time_t     now = time(0);
@@ -342,6 +399,16 @@ const string currentDateTime() {
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
     return buf;
+}
+
+FactoryPartGQ init(Factory& p)
+{
+    FactoryPartGQ f = FactoryPartGQ(p.id);
+    f.g.clear();
+    f.q.clear();
+    for (int i = 0; i < p.g.size(); ++i) f.g.push_back(p.g[i]);
+    for (int i = 0; i < p.q.size(); ++i) f.q.push_back(p.q[i]);
+    return f;
 }
 
 void inputs()
@@ -356,6 +423,7 @@ void inputs()
     {
         cin>>f[i];
         f[i].id = i;
+        fpq[i]=init(f[i]);
         // cout<<f[i];
     }
     cin>>size_conveyor;
@@ -384,6 +452,7 @@ void prepare_data()
     }
     for (int i = 0; i < number_of_factory; ++i)
     {
+        f[i].over_write(fpq[i]);
         for (int j = 0; j < f[i].g.size(); ++j)
         {
             g[i].push_back(f[i].g[j]);
@@ -612,7 +681,7 @@ int main()
             }
             cout<<"\t"<<result_r<<"\t"<<result_sr<<"\t"<<result_mr<<endl;
         }
-        while (next_permutation(f,f+number_of_factory));
+        while (next_permutation(fpq,fpq+number_of_factory));
     }
 
     cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
