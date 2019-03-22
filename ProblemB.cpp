@@ -67,7 +67,11 @@ number_of_d_of_factory[2] d[2][0] d[2][1] ... s[2][0] s[2][1] ...
 
 number_of_c c[1] c[2] ... beta[1] beta[2] ...
  */
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <vector>
 using namespace std;
 
 const int MAXN=20;
@@ -587,8 +591,8 @@ double calculat_r(vector<PossibleCase> u, int* weight, int rt)
 
 int main()
 {
-    freopen("s.in","r",stdin);
-    freopen("s.out","w",stdout);
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
 
     cout<<"========================= "<< currentDateTime() <<" =========================="<<endl;
 
